@@ -2,8 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/generate.js",
-      "use": "@vercel/node"
+      "src": "**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -13,7 +13,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/$1"
     }
   ]
 }
