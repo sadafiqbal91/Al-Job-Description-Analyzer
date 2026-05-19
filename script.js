@@ -1,5 +1,4 @@
 const API_ENDPOINT = '/api/generate';
-const GEMINI_API_KEY = 'AIzaSyBNmYYuL3rtnJGvpyGDVkSHnWSOM5q4Xds';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
 const responseCache = new Map();
@@ -70,15 +69,7 @@ ${jd}`;
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            
-            if (response.status === 429) {
-                console.warn('Rate limit hit, trying direct API...');
-                await directAPICall(prompt, cacheKey);
-                return;
-            }
-            
-            throw new Error(errorData.error || 'Backend API failed');
+            throw new Error(`Backend API failed: ${response.status}`);
         }
 
         const data = await response.json();
@@ -101,69 +92,12 @@ ${jd}`;
         }, 2000);
 
     } catch (error) {
-        console.error('Backend failed, trying direct API...', error);
-        await directAPICall(prompt, cacheKey);
+        console.error('Backend failed:', error);
+        alert('AI analysis failed. Please check if Vercel environment variable is set correctly and redeploy.');
     } finally {
         analyzeBtn.disabled = false;
     }
 };
-
-async function directAPICall(prompt, cacheKey) {
-    try {
-        console.log('Calling Google API directly...');
-        
-        const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { response_mime_type: 'application/json' }
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            
-            if (response.status === 429) {
-                alert('Rate limit reached. Please wait 1 minute and try again.');
-                showDefaultMock();
-                return;
-            }
-            
-            if (response.status === 403) {
-                console.error('API key suspended');
-                showDefaultMock();
-                return;
-            }
-            
-            throw new Error(errorData.error?.message || 'API request failed');
-        }
-
-        const data = await response.json();
-        
-        if (!data.candidates || !data.candidates[0]?.content?.parts[0]?.text) {
-            throw new Error('Invalid response');
-        }
-
-        const rawText = data.candidates[0].content.parts[0].text;
-        const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-        analysisData = JSON.parse(cleanJson);
-        
-        responseCache.set(cacheKey, { data: analysisData, timestamp: Date.now() });
-        
-        renderDashboard();
-        analyzeBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Analysis Complete!';
-        
-        setTimeout(() => {
-            analyzeBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Now';
-        }, 2000);
-
-    } catch (error) {
-        console.error('Direct API also failed:', error);
-        alert('AI analysis failed. Showing demo results.');
-        showDefaultMock();
-    }
-}
 
 function showDefaultMock() {
     analysisData = {
@@ -448,14 +382,15 @@ Expected Answer: ${question.a}
 User's Answer: ${answer}`;
 
     try {
-        const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: analysisPrompt }] }],
-                generationConfig: { response_mime_type: 'application/json' }
-            })
+            body: JSON.stringify({ prompt: analysisPrompt, isJson: true })
         });
+
+        if (!response.ok) {
+            throw new Error(`API failed: ${response.status}`);
+        }
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text;
