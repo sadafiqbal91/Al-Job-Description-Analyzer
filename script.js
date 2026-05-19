@@ -1,21 +1,16 @@
-// --- CONFIGURATION ---
 const API_ENDPOINT = '/api/generate';
-const GEMINI_API_KEY = 'AIzaSyAXzFfKsjqDBozi1-yIn65gl7MhVUqX_P8';
+const GEMINI_API_KEY = 'AIzaSyBNmYYuL3rtnJGvpyGDVkSHnWSOM5q4Xds';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
-// Cache for responses (5 minutes)
 const responseCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
-// --- STATE ---
 let analysisData = null;
 
-// --- DOM ELEMENTS ---
 const jdInput = document.getElementById('jdInput');
 const analyzeBtn = document.getElementById('analyzeBtn');
 const dashboard = document.getElementById('resultsDashboard');
 
-// --- MAIN ANALYSIS LOGIC ---
 window.startAnalysis = async () => {
     const jd = jdInput.value.trim();
 
@@ -29,12 +24,11 @@ window.startAnalysis = async () => {
         return;
     }
 
-    // Check cache first
     const cacheKey = jd.toLowerCase().trim();
     if (responseCache.has(cacheKey)) {
         const cached = responseCache.get(cacheKey);
         if (Date.now() - cached.timestamp < CACHE_TTL) {
-            console.log('✅ Using cached response');
+            console.log('Using cached response');
             analysisData = cached.data;
             renderDashboard();
             analyzeBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Analysis Complete! (Cached)';
@@ -67,7 +61,7 @@ Job Description:
 ${jd}`;
 
     try {
-        console.log('🔄 Calling backend API...');
+        console.log('Calling backend API...');
         
         const response = await fetch(API_ENDPOINT, {
             method: 'POST',
@@ -79,7 +73,7 @@ ${jd}`;
             const errorData = await response.json();
             
             if (response.status === 429) {
-                console.warn('⚠️ Rate limit hit, trying direct API...');
+                console.warn('Rate limit hit, trying direct API...');
                 await directAPICall(prompt, cacheKey);
                 return;
             }
@@ -97,7 +91,6 @@ ${jd}`;
         const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
         analysisData = JSON.parse(cleanJson);
         
-        // Cache the response
         responseCache.set(cacheKey, { data: analysisData, timestamp: Date.now() });
         
         renderDashboard();
@@ -108,7 +101,7 @@ ${jd}`;
         }, 2000);
 
     } catch (error) {
-        console.error('❌ Backend failed, trying direct API...', error);
+        console.error('Backend failed, trying direct API...', error);
         await directAPICall(prompt, cacheKey);
     } finally {
         analyzeBtn.disabled = false;
@@ -117,7 +110,7 @@ ${jd}`;
 
 async function directAPICall(prompt, cacheKey) {
     try {
-        console.log('🔄 Calling Google API directly...');
+        console.log('Calling Google API directly...');
         
         const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
@@ -132,13 +125,13 @@ async function directAPICall(prompt, cacheKey) {
             const errorData = await response.json();
             
             if (response.status === 429) {
-                alert('⏳ Rate limit reached. Please wait 1 minute and try again.');
+                alert('Rate limit reached. Please wait 1 minute and try again.');
                 showDefaultMock();
                 return;
             }
             
             if (response.status === 403) {
-                console.error('❌ API key suspended');
+                console.error('API key suspended');
                 showDefaultMock();
                 return;
             }
@@ -156,7 +149,6 @@ async function directAPICall(prompt, cacheKey) {
         const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
         analysisData = JSON.parse(cleanJson);
         
-        // Cache the response
         responseCache.set(cacheKey, { data: analysisData, timestamp: Date.now() });
         
         renderDashboard();
@@ -167,13 +159,12 @@ async function directAPICall(prompt, cacheKey) {
         }, 2000);
 
     } catch (error) {
-        console.error('❌ Direct API also failed:', error);
+        console.error('Direct API also failed:', error);
         alert('AI analysis failed. Showing demo results.');
         showDefaultMock();
     }
 }
 
-// --- MOCK DATA (For Demo/Fallback) ---
 function showDefaultMock() {
     analysisData = {
         skills: ['JavaScript', 'React.js', 'Node.js', 'REST APIs', 'Git', 'Agile', 'Problem Solving', 'Communication'],
@@ -203,14 +194,11 @@ function showDefaultMock() {
     renderDashboard();
 }
 
-// --- RENDER FUNCTIONS ---
 function renderDashboard() {
     dashboard.classList.remove('hidden');
     
-    // Skills
     document.getElementById('skillsList').innerHTML = analysisData.skills.map(s => `<span class="tag">${s}</span>`).join('');
 
-    // Interview Questions
     const renderLevel = (level, color, icon) => `
         <div class="interview-level">
             <h4 style="color: ${color}; margin-bottom: 1rem;">
@@ -233,7 +221,6 @@ function renderDashboard() {
         renderLevel('intermediate', '#fbbf24', 'fa-fire') +
         renderLevel('advanced', '#f87171', 'fa-bolt');
 
-    // Roadmap with Video Links
     document.getElementById('roadmapList').innerHTML = analysisData.roadmap.map((step, i) => `
         <li class="roadmap-item">
             <div class="step-number">${i + 1}</div>
@@ -258,23 +245,54 @@ function renderDashboard() {
         </li>
     `).join('');
 
-    // Projects
     document.getElementById('projectsList').innerHTML = analysisData.projects.map(p => `
         <li class="project-card">
-            <i class="fa-solid fa-folder-open"></i>
-            <div>
+            <div class="project-icon">
+                <i class="fa-solid fa-rocket"></i>
+            </div>
+            <div class="project-info">
                 <strong>${p.name}</strong>
                 <p>${p.brief}</p>
+                <div class="project-tags">
+                    <span class="tag-small">Full Stack</span>
+                    <span class="tag-small">Production Ready</span>
+                    <span class="tag-small">Portfolio Worthy</span>
+                </div>
             </div>
         </li>
     `).join('');
 
-    // Resume Tips
-    document.getElementById('resumeTips').innerHTML = analysisData.resumeTips.map(tip => `
-        <li><i class="fa-solid fa-check"></i> ${tip}</li>
-    `).join('');
+    document.getElementById('resumeTips').innerHTML = `
+        <li class="resume-pattern">
+            <i class="fa-solid fa-file-lines"></i>
+            <div>
+                <strong>Reverse Chronological Format</strong>
+                <p>Most recent experience first. Best for ATS systems.</p>
+            </div>
+        </li>
+        <li class="resume-pattern">
+            <i class="fa-solid fa-star"></i>
+            <div>
+                <strong>Accomplishment-Based Bullets</strong>
+                <p>Use "Action verb + Task + Result" format</p>
+            </div>
+        </li>
+        <li class="resume-pattern">
+            <i class="fa-solid fa-chart-line"></i>
+            <div>
+                <strong>Quantified Achievements</strong>
+                <p>Add metrics: "Improved performance by 40%"</p>
+            </div>
+        </li>
+        <li class="resume-pattern">
+            <i class="fa-solid fa-key"></i>
+            <div>
+                <strong>ATS Keywords Section</strong>
+                <p>${analysisData.resumeTips.join(', ')}</p>
+            </div>
+        </li>
+    `;
 
-    // Application Tips
     document.getElementById('applicationTips').innerHTML = analysisData.applicationTips.map(tip => `
         <li><i class="fa-solid fa-arrow-right"></i> ${tip}</li>
     `).join('');
@@ -282,7 +300,6 @@ function renderDashboard() {
     dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// --- VIDEO LINK GENERATOR ---
 function getVideoLink(step, platform) {
     const keywords = extractKeywords(step);
     
@@ -302,7 +319,6 @@ function extractKeywords(step) {
     return keywords.slice(0, 3).join(' ') || 'programming tutorial';
 }
 
-// --- UTILITY FUNCTIONS ---
 window.toggleAnswer = (btn) => {
     const box = btn.nextElementSibling;
     const isHidden = box.classList.toggle('hidden');
@@ -314,12 +330,6 @@ window.toggleStep = (checkbox) => {
     item.classList.toggle('completed', checkbox.checked);
 };
 
-window.startDemoMode = () => {
-    showDefaultMock();
-    jdInput.value = 'Demo: Full Stack Developer position requiring React, Node.js, and modern web development skills.';
-};
-
-// --- VOICE MOCK INTERVIEW ---
 let recognition = null;
 let isInterviewing = false;
 let currentQuestionIndex = 0;
@@ -345,7 +355,7 @@ window.startMockInterview = async () => {
     document.getElementById('questionDisplay').classList.remove('hidden');
     document.getElementById('answerSection').classList.remove('hidden');
 
-    updateInterviewStatus('🎤 Starting AI Interview...', 'loading');
+    updateInterviewStatus('Starting AI Interview...', 'loading');
     
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -362,7 +372,7 @@ window.startMockInterview = async () => {
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            updateInterviewStatus('❌ Microphone error. Please allow microphone access.', 'error');
+            updateInterviewStatus('Microphone error. Please allow microphone access.', 'error');
         };
 
         speakQuestion(mockQuestions[0].q);
@@ -386,7 +396,7 @@ window.stopMockInterview = () => {
     document.getElementById('userAnswer').classList.add('hidden');
     document.getElementById('aiFeedback').classList.add('hidden');
     
-    updateInterviewStatus('✅ Interview stopped. Good luck!', 'success');
+    updateInterviewStatus('Interview stopped. Good luck!', 'success');
 };
 
 function speakQuestion(question) {
@@ -397,7 +407,7 @@ function speakQuestion(question) {
         utterance.volume = 1;
         
         utterance.onend = () => {
-            updateInterviewStatus('🎤 Now speak your answer...', 'listening');
+            updateInterviewStatus('Now speak your answer...', 'listening');
         };
         
         window.speechSynthesis.speak(utterance);
@@ -407,7 +417,7 @@ function speakQuestion(question) {
 
 window.startListening = () => {
     if (recognition && isInterviewing) {
-        updateInterviewStatus('🎤 Listening...', 'listening');
+        updateInterviewStatus('Listening...', 'listening');
         recognition.start();
     }
 };
@@ -419,7 +429,7 @@ function displayUserAnswer(answer) {
         <p>${answer}</p>
     `;
     userAnswerDiv.classList.remove('hidden');
-    updateInterviewStatus('🤖 Analyzing your answer...', 'analyzing');
+    updateInterviewStatus('Analyzing your answer...', 'analyzing');
 }
 
 async function analyzeAnswer(answer) {
@@ -460,14 +470,14 @@ User's Answer: ${answer}`;
                 document.getElementById('userAnswer').classList.add('hidden');
                 document.getElementById('aiFeedback').classList.add('hidden');
             } else if (isInterviewing) {
-                updateInterviewStatus('🎉 Interview Complete! Great job!', 'success');
+                updateInterviewStatus('Interview Complete! Great job!', 'success');
                 stopMockInterview();
             }
         }, 3000);
 
     } catch (error) {
         console.error('Feedback analysis error:', error);
-        updateInterviewStatus('⚠️ Feedback analysis failed. Continuing...', 'warning');
+        updateInterviewStatus('Feedback analysis failed. Continuing...', 'warning');
     }
 }
 
@@ -481,7 +491,7 @@ function displayFeedback(feedback) {
         <p><strong>Improvements:</strong> ${feedback.improvements.join(', ')}</p>
     `;
     feedbackDiv.classList.remove('hidden');
-    updateInterviewStatus('✅ Answer analyzed!', 'success');
+    updateInterviewStatus('Answer analyzed!', 'success');
 }
 
 function updateInterviewStatus(message, type) {
@@ -490,7 +500,22 @@ function updateInterviewStatus(message, type) {
     statusDiv.className = `interview-status status-${type}`;
 }
 
-// Initialize
+function createParticles() {
+    const container = document.getElementById('bgAnimation');
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.width = Math.random() * 50 + 10 + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particle.style.animationDuration = Math.random() * 10 + 15 + 's';
+        container.appendChild(particle);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('AI Job Analyzer Ready - Use anywhere in the world!');
+    createParticles();
 });

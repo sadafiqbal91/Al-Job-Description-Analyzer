@@ -10,6 +10,7 @@
 <body>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="bg-animation" id="bgAnimation"></div>
 
     <div class="container">
         <header>
@@ -18,23 +19,17 @@
         </header>
 
         <main>
-            <!-- ANALYZER BOX -->
             <section class="analyzer-box">
                 <textarea id="jdInput" placeholder="Paste job description from LinkedIn, Indeed, Naukri, or any job portal..."></textarea>
                 <div class="input-row">
                     <button class="btn-primary" id="analyzeBtn" onclick="startAnalysis()">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Now
                     </button>
-                    <button class="btn-secondary" onclick="startDemoMode()">
-                        <i class="fa-solid fa-play"></i> Demo
-                    </button>
                 </div>
             </section>
 
-            <!-- RESULTS DASHBOARD -->
             <section id="resultsDashboard" class="dashboard hidden">
                 
-                <!-- 1. Skill Extraction -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-bullseye"></i>
@@ -43,7 +38,6 @@
                     <div id="skillsList" class="tag-container"></div>
                 </div>
 
-                <!-- 2. Interview Prep -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-comments"></i>
@@ -52,7 +46,6 @@
                     <div id="interviewContent"></div>
                 </div>
 
-                <!-- 3. VOICE MOCK INTERVIEW -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-microphone-lines"></i>
@@ -84,7 +77,6 @@
                     </div>
                 </div>
 
-                <!-- 4. Learning Roadmap -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-route"></i>
@@ -93,7 +85,6 @@
                     <ul id="roadmapList"></ul>
                 </div>
 
-                <!-- 5. Project Suggestions -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-code"></i>
@@ -102,7 +93,6 @@
                     <ul id="projectsList"></ul>
                 </div>
 
-                <!-- 6. Resume Optimizer -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-file-alt"></i>
@@ -111,7 +101,6 @@
                     <ul id="resumeTips"></ul>
                 </div>
 
-                <!-- 7. Job Application Tips -->
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-paper-plane"></i>
