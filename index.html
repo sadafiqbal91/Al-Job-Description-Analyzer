@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Description Analyzer | Career Prep Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-robot"></i> AI Job Description Analyzer</h1>
+            <p>Paste any job description. Get instant interview prep, skills, and career roadmap.</p>
+        </header>
+
+        <main>
+            <!-- ANALYZER BOX -->
+            <section class="analyzer-box">
+                <textarea id="jdInput" placeholder="Paste job description from LinkedIn, Indeed, Naukri, or any job portal..."></textarea>
+                <div class="input-row">
+                    <button class="btn-primary" id="analyzeBtn" onclick="startAnalysis()">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Now
+                    </button>
+                    <button class="btn-secondary" onclick="startDemoMode()">
+                        <i class="fa-solid fa-play"></i> Demo
+                    </button>
+                </div>
+            </section>
+
+            <!-- RESULTS DASHBOARD -->
+            <section id="resultsDashboard" class="dashboard hidden">
+                
+                <!-- 1. Skill Extraction -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <h3>Required Skills</h3>
+                    </div>
+                    <div id="skillsList" class="tag-container"></div>
+                </div>
+
+                <!-- 2. Interview Prep -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-comments"></i>
+                        <h3>Interview Questions (With Answers)</h3>
+                    </div>
+                    <div id="interviewContent"></div>
+                </div>
+
+                <!-- 3. VOICE MOCK INTERVIEW -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                        <h3>AI Voice Mock Interview</h3>
+                    </div>
+                    <div class="mock-interview-container">
+                        <div class="interview-controls">
+                            <button class="btn-primary" id="startInterviewBtn" onclick="startMockInterview()">
+                                <i class="fa-solid fa-play"></i> Start Interview
+                            </button>
+                            <button class="btn-secondary" id="stopInterviewBtn" onclick="stopMockInterview()" disabled>
+                                <i class="fa-solid fa-stop"></i> Stop
+                            </button>
+                        </div>
+                        <div id="interviewStatus" class="interview-status">
+                            <i class="fa-solid fa-robot"></i> Ready to start AI interview
+                        </div>
+                        <div id="questionDisplay" class="question-display hidden">
+                            <h4>AI Interviewer:</h4>
+                            <p id="currentQuestion"></p>
+                        </div>
+                        <div id="answerSection" class="answer-section hidden">
+                            <button class="btn-primary" onclick="startListening()">
+                                <i class="fa-solid fa-microphone"></i> Start Speaking
+                            </button>
+                            <div id="userAnswer" class="user-answer hidden"></div>
+                            <div id="aiFeedback" class="ai-feedback hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Learning Roadmap -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-route"></i>
+                        <h3>Step-by-Step Learning Plan</h3>
+                    </div>
+                    <ul id="roadmapList"></ul>
+                </div>
+
+                <!-- 5. Project Suggestions -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-code"></i>
+                        <h3>Projects To Build</h3>
+                    </div>
+                    <ul id="projectsList"></ul>
+                </div>
+
+                <!-- 6. Resume Optimizer -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-file-alt"></i>
+                        <h3>Resume Keywords</h3>
+                    </div>
+                    <ul id="resumeTips"></ul>
+                </div>
+
+                <!-- 7. Job Application Tips -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <h3>Application Strategy</h3>
+                    </div>
+                    <ul id="applicationTips"></ul>
+                </div>
+
+            </section>
+        </main>
+
+        <footer>
+            <p>Powered by AI | Use anywhere in the world | 100% Free</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
