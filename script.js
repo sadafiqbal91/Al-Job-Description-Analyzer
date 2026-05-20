@@ -1,5 +1,4 @@
 const API_ENDPOINT = '/api/generate';
-const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
 const responseCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
