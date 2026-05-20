@@ -3,26 +3,27 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { prompt, isJson } = req.body;
-    const apiKey = process.env.HUGGINGFACE_API_KEY;
+    const { prompt } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
         return res.status(500).json({ error: 'API Key not configured on server' });
     }
 
     try {
-        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1', {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                inputs: prompt,
-                parameters: {
-                    max_new_tokens: 2000,
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }],
+                generationConfig: {
                     temperature: 0.7,
-                    return_full_text: false
                 }
             })
         });
@@ -30,15 +31,15 @@ module.exports = async function handler(req, res) {
         const data = await response.json();
         
         if (data.error) {
-            console.error('HuggingFace API Error:', data.error);
-            return res.status(500).json({ error: data.error });
+            console.error('Gemini API Error:', data.error);
+            return res.status(500).json({ error: data.error.message || 'Error from Gemini API' });
         }
 
         res.status(200).json({
             candidates: [{
                 content: {
                     parts: [{
-                        text: data[0]?.generated_text || ''
+                        text: data.candidates[0]?.content?.parts[0]?.text || ''
                     }]
                 }
             }]
