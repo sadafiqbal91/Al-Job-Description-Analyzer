@@ -1,4 +1,4 @@
-const API_ENDPOINT = '/api/generate';
+const GEMINI_API_KEY = 'AIzaSyCivJEai1YizQD793ct1hJajgnFKeD2z-Y'; // Using the key directly to bypass Vercel backend issues
 
 const responseCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
@@ -59,16 +59,19 @@ Job Description:
 ${jd}`;
 
     try {
-        console.log('Calling backend API...');
+        console.log('Calling Gemini API directly...');
         
-        const response = await fetch(API_ENDPOINT, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, isJson: true })
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.7 }
+            })
         });
 
         if (!response.ok) {
-            throw new Error(`Backend API failed: ${response.status}`);
+            throw new Error(`API failed: ${response.status}`);
         }
 
         const data = await response.json();
@@ -91,8 +94,8 @@ ${jd}`;
         }, 2000);
 
     } catch (error) {
-        console.error('Backend failed:', error);
-        alert('AI analysis failed. Please check if Vercel environment variable is set correctly and redeploy.');
+        console.error('API failed:', error);
+        alert('AI analysis failed. Please try again or check your internet connection.');
     } finally {
         analyzeBtn.disabled = false;
     }
@@ -381,10 +384,13 @@ Expected Answer: ${question.a}
 User's Answer: ${answer}`;
 
     try {
-        const response = await fetch(API_ENDPOINT, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: analysisPrompt, isJson: true })
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: analysisPrompt }] }],
+                generationConfig: { temperature: 0.7 }
+            })
         });
 
         if (!response.ok) {
